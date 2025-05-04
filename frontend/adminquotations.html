@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation Requests</title>
+    <style>
+        .quotation-container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .add-quotation-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .add-quotation-btn:hover {
+            background: #2980b9;
+        }
+
+        /* Quotation Form */
+        .quotation-form-container, .edit-quotation-form {
+            display: none;
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .quotation-form-container label, .edit-quotation-form label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .quotation-form-container input, .quotation-form-container textarea,
+        .edit-quotation-form input, .edit-quotation-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        .quotation-form-container button, .edit-quotation-form button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Quotation Table */
+        .quotation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .quotation-table th, .quotation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .quotation-table th {
+            background: #2c3e50;
+            color: white;
+        }
+    </style>
+    <script defer>
+        function openQuotationForm() {
+            document.getElementById("quotationForm").style.display = "block";
+        }
+
+        function closeQuotationForm() {
+            document.getElementById("quotationForm").style.display = "none";
+        }
+
+        function openEditForm(row) {
+            document.getElementById("editPartNumber").value = row.cells[1].textContent;
+            document.getElementById("editBrand").value = row.cells[2].textContent;
+            document.getElementById("editQuantity").value = row.cells[3].textContent;
+            document.getElementById("editSpecification").value = row.cells[4].textContent;
+            document.getElementById("editQuotationForm").style.display = "block";
+            document.getElementById("saveChanges").onclick = function() {
+                row.cells[1].textContent = document.getElementById("editPartNumber").value;
+                row.cells[2].textContent = document.getElementById("editBrand").value;
+                row.cells[3].textContent = document.getElementById("editQuantity").value;
+                row.cells[4].textContent = document.getElementById("editSpecification").value;
+                closeEditForm();
+            };
+        }
+
+        function closeEditForm() {
+            document.getElementById("editQuotationForm").style.display = "none";
+        }
+
+        function submitQuotation() {
+            let partNumber = document.getElementById("partNumber").value;
+            let brand = document.getElementById("brand").value;
+            let quantity = document.getElementById("quantity").value;
+            let specification = document.getElementById("specification").value;
+
+            if (partNumber === "" || brand === "" || quantity === "" || specification === "") {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            let table = document.getElementById("quotationTableBody");
+            let newRow = table.insertRow();
+            let quotationID = "#Q" + Math.floor(Math.random() * 1000);
+            
+            newRow.innerHTML = `
+                <td>${quotationID}</td>
+                <td>${partNumber}</td>
+                <td>${brand}</td>
+                <td>${quantity}</td>
+                <td>${specification}</td>
+                <td>Pending</td>
+                <td><button onclick="openEditForm(this.parentElement.parentElement)">Edit</button></td>
+            `;
+
+            document.getElementById("quotationForm").reset();
+            closeQuotationForm();
+        }
+    </script>
+</head>
+<body>
+    <div class="quotation-container">
+        <h2>Quotation Requests</h2>
+        <button class="add-quotation-btn" onclick="openQuotationForm()">Request New Quotation</button>
+        
+        <div class="quotation-form-container" id="quotationForm">
+            <h3>New Quotation Request</h3>
+            <label for="partNumber">Part Number:</label>
+            <input type="text" id="partNumber">
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity">
+            <label for="specification">Specification:</label>
+            <textarea id="specification"></textarea>
+            <button onclick="submitQuotation()">Submit</button>
+            <button class="cancel-btn" onclick="closeQuotationForm()">Cancel</button>
+        </div>
+
+        <div class="edit-quotation-form" id="editQuotationForm">
+            <h3>Edit Quotation Request</h3>
+            <label for="editPartNumber">Part Number:</label>
+            <input type="text" id="editPartNumber">
+            <label for="editBrand">Brand:</label>
+            <input type="text" id="editBrand">
+            <label for="editQuantity">Quantity:</label>
+            <input type="number" id="editQuantity">
+            <label for="editSpecification">Specification:</label>
+            <textarea id="editSpecification"></textarea>
+            <button id="saveChanges">Save Changes</button>
+            <button class="cancel-btn" onclick="closeEditForm()">Cancel</button>
+        </div>
+
+        <table class="quotation-table">
+            <thead>
+                <tr>
+                    <th>Quotation ID</th>
+                    <th>Part Number</th>
+                    <th>Brand</th>
+                    <th>Quantity</th>
+                    <th>Specification</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="quotationTableBody"></tbody>
+        </table>
+    </div>
+</body>
+</html>

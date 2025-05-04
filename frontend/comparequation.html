@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Quotations | TechFix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .filter-section label {
+            font-weight: bold;
+        }
+
+        .filter-section input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+        }
+
+        /* Quotations Table */
+        .quotations-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .quotations-table th, .quotations-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .quotations-table th {
+            background: #2980b9;
+            color: white;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+
+        .accept-btn { background: #2ecc71; }
+        .reject-btn { background: #e74c3c; }
+
+        .accept-btn:hover { background: #27ae60; }
+        .reject-btn:hover { background: #c0392b; }
+    </style>
+
+    <script defer>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadQuotations();
+            document.getElementById("supplierFilter").addEventListener("input", filterQuotations);
+            document.getElementById("priceFilter").addEventListener("input", filterQuotations);
+        });
+
+        // Sample quotation data
+        let quotations = [
+            { id: 1, supplier: "Tech Supplies Ltd.", part: "Intel CPU", price: 250, warranty: "1 Year", discount: "5%", status: "Pending" },
+            { id: 2, supplier: "Global Electronics", part: "AMD GPU", price: 500, warranty: "2 Years", discount: "10%", status: "Pending" },
+            { id: 3, supplier: "PC World", part: "RAM 16GB", price: 120, warranty: "1 Year", discount: "3%", status: "Pending" }
+        ];
+
+        function loadQuotations() {
+            let tableBody = document.getElementById("quotationsTableBody");
+            tableBody.innerHTML = "";
+
+            quotations.forEach(quote => {
+                if (quote.status === "Pending") {
+                    let row = `
+                        <tr>
+                            <td>${quote.id}</td>
+                            <td>${quote.supplier}</td>
+                            <td>${quote.part}</td>
+                            <td>$${quote.price}</td>
+                            <td>${quote.warranty}</td>
+                            <td>${quote.discount}</td>
+                            <td>
+                                <button class="accept-btn" onclick="updateStatus(${quote.id}, 'Accepted')">Accept</button>
+                                <button class="reject-btn" onclick="updateStatus(${quote.id}, 'Rejected')">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                }
+            });
+        }
+
+        function filterQuotations() {
+            let supplierFilter = document.getElementById("supplierFilter").value.toLowerCase();
+            let priceFilter = document.getElementById("priceFilter").value;
+
+            let tableBody = document.getElementById("quotationsTableBody");
+            tableBody.innerHTML = "";
+
+            quotations.forEach(quote => {
+                let matchesSupplier = supplierFilter === "" || quote.supplier.toLowerCase().includes(supplierFilter);
+                let matchesPrice = priceFilter === "" || quote.price <= parseFloat(priceFilter);
+
+                if (quote.status === "Pending" && matchesSupplier && matchesPrice) {
+                    let row = `
+                        <tr>
+                            <td>${quote.id}</td>
+                            <td>${quote.supplier}</td>
+                            <td>${quote.part}</td>
+                            <td>$${quote.price}</td>
+                            <td>${quote.warranty}</td>
+                            <td>${quote.discount}</td>
+                            <td>
+                                <button class="accept-btn" onclick="updateStatus(${quote.id}, 'Accepted')">Accept</button>
+                                <button class="reject-btn" onclick="updateStatus(${quote.id}, 'Rejected')">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                }
+            });
+        }
+
+        function updateStatus(id, newStatus) {
+            quotations = quotations.map(quote => quote.id === id ? { ...quote, status: newStatus } : quote);
+            loadQuotations();
+            displayAcceptedRejected();
+        }
+
+        function displayAcceptedRejected() {
+            let acceptedTable = document.getElementById("acceptedTableBody");
+            let rejectedTable = document.getElementById("rejectedTableBody");
+
+            acceptedTable.innerHTML = "";
+            rejectedTable.innerHTML = "";
+
+            quotations.forEach(quote => {
+                let row = `
+                    <tr>
+                        <td>${quote.id}</td>
+                        <td>${quote.supplier}</td>
+                        <td>${quote.part}</td>
+                        <td>$${quote.price}</td>
+                        <td>${quote.warranty}</td>
+                        <td>${quote.discount}</td>
+                    </tr>
+                `;
+
+                if (quote.status === "Accepted") {
+                    acceptedTable.innerHTML += row;
+                } else if (quote.status === "Rejected") {
+                    rejectedTable.innerHTML += row;
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Compare Quotations</h2>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <label for="supplierFilter">Filter by Supplier:</label>
+            <input type="text" id="supplierFilter" placeholder="Enter supplier name">
+            
+            <label for="priceFilter">Max Price ($):</label>
+            <input type="number" id="priceFilter" placeholder="Enter max price">
+        </div>
+
+        <!-- Quotations Table -->
+        <table class="quotations-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier</th>
+                    <th>Part</th>
+                    <th>Price</th>
+                    <th>Warranty</th>
+                    <th>Discount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="quotationsTableBody"></tbody>
+        </table>
+
+        <h2>Accepted Quotations</h2>
+        <table class="quotations-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier</th>
+                    <th>Part</th>
+                    <th>Price</th>
+                    <th>Warranty</th>
+                    <th>Discount</th>
+                </tr>
+            </thead>
+            <tbody id="acceptedTableBody"></tbody>
+        </table>
+
+        <h2>Rejected Quotations</h2>
+        <table class="quotations-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier</th>
+                    <th>Part</th>
+                    <th>Price</th>
+                    <th>Warranty</th>
+                    <th>Discount</th>
+                </tr>
+            </thead>
+            <tbody id="rejectedTableBody"></tbody>
+        </table>
+    </div>
+
+</body>
+</html>

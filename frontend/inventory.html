@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <style>
+        .inventory-container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .add-item-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #2980b9;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .filter-container select,
+        .filter-container input {
+            padding: 8px;
+        }
+
+        .form-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .form-container input {
+            padding: 8px;
+            width: 200px;
+        }
+
+        /* Inventory Table */
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .inventory-table th,
+        .inventory-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .inventory-table th {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .low-stock {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .in-stock {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #f1c40f;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background: #d4ac0d;
+        }
+    </style>
+    <script defer>
+
+document.addEventListener("DOMContentLoaded", function () {
+    loadInventory();
+});
+
+function loadInventory() {
+    fetch("http://127.0.0.1:8080/api/inventory")  // Update with your API URL
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.getElementById("inventoryTableBody");
+            tableBody.innerHTML = ""; // Clear table before loading data
+
+            data.forEach(item => {
+                let row = tableBody.insertRow();
+                
+                // Determine stock status
+                let stockStatus = item.item_quantity < item.reorder_level ? "Low Stock" : "In Stock";
+                let statusClass = item.item_quantity < item.reorder_level ? "low-stock" : "in-stock";
+
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.item_name}</td>
+                    <td>${item.part_number}</td>
+                    <td>${item.item_quantity}</td>
+                    <td>${item.reorder_level}</td>
+                    <td class="${statusClass}">${stockStatus}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editInventoryItem(${item.id})">Edit</button>
+                    </td>
+                `;
+            });
+        })
+        .catch(error => console.error("Error loading inventory:", error));
+}
+
+
+        function filterInventory() {
+            let statusFilter = document.getElementById("statusFilter").value;
+            let minStock = document.getElementById("minStock").value;
+            let maxStock = document.getElementById("maxStock").value;
+
+            let rows = document.querySelectorAll("#inventoryTableBody tr");
+            rows.forEach(row => {
+                let stock = parseInt(row.cells[3].innerText);
+                let status = row.cells[5].innerText;
+                let showRow = true;
+
+                if (statusFilter && status !== statusFilter) {
+                    showRow = false;
+                }
+                if (minStock && stock < minStock) {
+                    showRow = false;
+                }
+                if (maxStock && stock > maxStock) {
+                    showRow = false;
+                }
+
+                row.style.display = showRow ? "" : "none";
+            });
+        }
+
+        function addInventoryItem() {
+            let itemName = document.getElementById("itemName").value;
+            let itemPart = document.getElementById("itemPart").value;
+            let itemQuantity = document.getElementById("itemQuantity").value;
+            let reorderLevel = document.getElementById("reorderLevel").value;
+
+            if (!itemName || !itemPart || !itemQuantity || !reorderLevel) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            let stockStatus = parseInt(itemQuantity) < 50 ? "Low Stock" : "In Stock";
+
+            let inventoryData = {
+                item_name: itemName,
+                item_part: itemPart,
+                item_quantity: parseInt(itemQuantity),
+                reorder_level: parseInt(reorderLevel),
+                stock_status: stockStatus
+            };
+
+            fetch("http://127.0.0.1:8080/api/inventory", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(inventoryData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Item added successfully!");
+
+            //             // Add item to table
+            //             let table = document.getElementById("inventoryTableBody");
+            //             let newRow = table.insertRow();
+            //             let itemID = "#I" + Math.floor(Math.random() * 1000);
+            //             newRow.innerHTML = `
+            //     <td>${itemID}</td>
+            //     <td>${itemName}</td>
+            //     <td>${itemPart}</td>
+            //     <td>${itemQuantity}</td>
+            //     <td>${reorderLevel}</td>
+            //     <td class="${stockStatus === 'Low Stock' ? 'low-stock' : 'in-stock'}">${stockStatus}</td>
+            //     <td><button class="edit-btn" onclick="editInventoryItem(this)">Edit</button></td>
+            // `;
+
+            loadInventory();
+
+                        // Clear input fields
+                        document.getElementById("itemName").value = "";
+                        document.getElementById("itemPart").value = "";
+                        document.getElementById("itemQuantity").value = "";
+                        document.getElementById("reorderLevel").value = "";
+
+                        filterInventory();
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+
+        function editInventoryItem(button) {
+            let row = button.parentElement.parentElement;
+            let itemID = row.cells[0].innerText;
+            let itemName = row.cells[1].innerText;
+            let itemPart = row.cells[2].innerText;
+            let itemQuantity = row.cells[3].innerText;
+            let reorderLevel = row.cells[4].innerText;
+
+            let newItemName = prompt("Edit Item Name:", itemName);
+            let newItemPart = prompt("Edit Part Number:", itemPart);
+            let newItemQuantity = prompt("Edit Quantity:", itemQuantity);
+            let newReorderLevel = prompt("Edit Reorder Level:", reorderLevel);
+
+            if (!newItemName || !newItemPart || !newItemQuantity || !newReorderLevel) {
+                alert("All fields must be filled!");
+                return;
+            }
+
+            row.cells[1].innerText = newItemName;
+            row.cells[2].innerText = newItemPart;
+            row.cells[3].innerText = newItemQuantity;
+            row.cells[4].innerText = newReorderLevel;
+
+            let stockStatus = parseInt(newItemQuantity) < 50 ? "Low Stock" : "In Stock";
+            let statusClass = parseInt(newItemQuantity) < 50 ? "low-stock" : "in-stock";
+
+            row.cells[5].innerText = stockStatus;
+            row.cells[5].className = statusClass;
+        }
+    </script>
+</head>
+
+<body>
+    <div class="inventory-container">
+        <h2>Inventory Management</h2>
+
+        <!-- Item Input Form -->
+        <div class="form-container">
+            <input type="text" id="itemName" placeholder="Item Name">
+            <input type="text" id="itemPart" placeholder="Part Number">
+            <input type="number" id="itemQuantity" placeholder="Quantity">
+            <input type="number" id="reorderLevel" placeholder="Reorder Level">
+            <button class="add-item-btn" onclick="addInventoryItem()">Add New Item</button>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-container">
+            <label>Stock Status:</label>
+            <select id="statusFilter" onchange="filterInventory()">
+                <option value="">All</option>
+                <option value="In Stock">In Stock</option>
+                <option value="Low Stock">Low Stock</option>
+            </select>
+            <label>Stock Level Range:</label>
+            <input type="number" id="minStock" placeholder="Min" oninput="filterInventory()">
+            <input type="number" id="maxStock" placeholder="Max" oninput="filterInventory()">
+        </div>
+
+        <!-- Inventory Table -->
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Item Name</th>
+                    <th>Part Number</th>
+                    <th>Quantity</th>
+                    <th>Reorder Level</th>
+                    <th>Stock Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody"></tbody>
+        </table>
+    </div>
+</body>
+
+</html>

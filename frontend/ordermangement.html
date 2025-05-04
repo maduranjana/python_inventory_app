@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management</title>
+    <style>
+        .orders-container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .add-order-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .add-order-btn:hover {
+            background: #2980b9;
+        }
+
+        /* Order Form */
+        .order-form-container {
+            display: none;
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .order-form-container label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .order-form-container input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        .order-form-container button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Orders Table */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .orders-table th, .orders-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .orders-table th {
+            background: #2c3e50;
+            color: white;
+        }
+    </style>
+    <script defer>
+        // Function to open the order form
+        function openOrderForm() {
+            document.getElementById("orderForm").style.display = "block";
+        }
+
+        // Function to close the order form
+        function closeOrderForm() {
+            document.getElementById("orderForm").style.display = "none";
+        }
+
+        // Function to submit a new order
+        function submitOrder() {
+            let orderPart = document.getElementById("orderPart").value;
+            let orderSupplier = document.getElementById("orderSupplier").value;
+            let orderQuantity = document.getElementById("orderQuantity").value;
+            let orderDate = document.getElementById("orderDate").value;
+
+            if (orderPart === "" || orderSupplier === "" || orderQuantity === "" || orderDate === "") {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            // Create a new row and add it to the table
+            let table = document.getElementById("ordersTableBody");
+            let newRow = table.insertRow();
+            let orderID = "#O" + Math.floor(Math.random() * 1000);
+            newRow.innerHTML = `
+                <td>${orderID}</td>
+                <td>${orderPart}</td>
+                <td>${orderSupplier}</td>
+                <td>${orderQuantity}</td>
+                <td>${orderDate}</td>
+                <td>Pending</td>
+            `;
+
+            // Reset form and close it
+            document.getElementById("orderForm").reset();
+            closeOrderForm();
+        }
+
+        // Load Sample Data
+        document.addEventListener("DOMContentLoaded", function () {
+            let table = document.getElementById("ordersTableBody");
+
+            let sampleOrders = [
+                { id: "#O201", partNumber: "ABC123", supplier: "Supplier A", quantity: 10, deliveryDate: "2025-03-10", status: "Pending" },
+                { id: "#O202", partNumber: "XYZ789", supplier: "Supplier B", quantity: 5, deliveryDate: "2025-03-12", status: "Shipped" }
+            ];
+
+            sampleOrders.forEach(order => {
+                let row = table.insertRow();
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.partNumber}</td>
+                    <td>${order.supplier}</td>
+                    <td>${order.quantity}</td>
+                    <td>${order.deliveryDate}</td>
+                    <td>${order.status}</td>
+                `;
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <div class="orders-container">
+        <h2>Orders Management</h2>
+
+        <!-- Add New Order Button -->
+        <button class="add-order-btn" onclick="openOrderForm()">Place New Order</button>
+
+        <!-- Order Form (Hidden Initially) -->
+        <div class="order-form-container" id="orderForm">
+            <h3>New Order</h3>
+            <label for="orderPart">Part Number:</label>
+            <input type="text" id="orderPart" placeholder="Enter part number">
+
+            <label for="orderSupplier">Supplier:</label>
+            <input type="text" id="orderSupplier" placeholder="Enter supplier name">
+
+            <label for="orderQuantity">Quantity:</label>
+            <input type="number" id="orderQuantity" placeholder="Enter quantity">
+
+            <label for="orderDate">Expected Delivery Date:</label>
+            <input type="date" id="orderDate">
+
+            <button onclick="submitOrder()">Submit Order</button>
+            <button class="cancel-btn" onclick="closeOrderForm()">Cancel</button>
+        </div>
+
+        <!-- Orders Table -->
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Part Number</th>
+                    <th>Supplier</th>
+                    <th>Quantity</th>
+                    <th>Expected Delivery</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                <!-- Data will be loaded dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

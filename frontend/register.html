@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | TechFix</title>
+    <link rel="stylesheet" href="css/auth.css">
+    <script defer>
+        function validateRegister() {
+    let fullName = document.getElementById("full-name").value;
+    let email = document.getElementById("email").value;
+    let username = document.getElementById("username").value;
+    let phone = document.getElementById("phone").value;
+    let location = document.getElementById("location").value;
+    let joined = document.getElementById("joined").value;
+    let password = document.getElementById("password").value;
+    let confirmPassword = document.getElementById("confirm-password").value;
+    let userType = document.getElementById("usertype").value;
+
+    // Validate the form fields
+    if (fullName.trim() === "" || email.trim() === "" || username.trim() === "" || phone.trim() === "" || location.trim() === "" || joined.trim() === "" || password.trim() === "" || confirmPassword.trim() === "") {
+        alert("Please fill in all fields.");
+        return false;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return false;
+    }
+
+    // Prepare the data to send to the backend
+    const data = {
+        full_name: fullName,
+        email: email,
+        username: username,
+        phone: phone,
+        location: location,
+        password: password,
+        user_type: userType  // Assuming you are sending the user type to the backend
+    };
+
+    // Make the POST request to the backend API
+    fetch('http://127.0.0.1:8080/api/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert(`Registration successful as ${userType}! Redirecting to login...`);
+            window.location.href = "login.html"; // Redirect to login page after successful registration
+        } else {
+            alert(`Error: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred during registration. Please try again.");
+    });
+
+    return false;  // Prevent form submission
+}
+    </script>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Register for TechFix</h2>
+            <form onsubmit="return validateRegister()">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="full-name" placeholder="Enter your full name" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter a username" required>
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phone" placeholder="Enter your phone number" required>
+                </div>
+                <div class="input-group">
+                    <label>Location</label>
+                    <input type="text" id="location" placeholder="Enter your location" required>
+                </div>
+                <div class="input-group">
+                    <label>Joined Date</label>
+                    <input type="date" id="joined" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Create a password" required>
+                </div>
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirm-password" placeholder="Re-enter your password" required>
+                </div>
+                <div class="input-group">
+                    <label>User Type</label>
+                    <select id="usertype">
+                        <option value="Supplier">Supplier</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="auth-btn">Register</button>
+                <p>Already have an account? <a href="login.html">Login here</a></p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

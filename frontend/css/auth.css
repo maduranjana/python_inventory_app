@@ -1,0 +1,96 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Light Blue Color Scheme */
+:root {
+    --primary-color: #6497b1; /* Darker Blue */
+    --bg-light: #b3cde0; /* Light Blue */
+    --text-dark: #000000;
+    --text-light: #FFFFFF;
+    --border-color: #DDD;
+    --button-hover: #417d9b; /* Slightly darker blue for hover effects */
+}
+
+/* Background */
+body {
+    background: #b3cde0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Authentication Container */
+.auth-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 400px;
+}
+
+/* Authentication Box */
+.auth-box h2 {
+    margin-bottom: 20px;
+    color: var(--text-dark);
+}
+
+/* Input Group */
+.input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Button */
+.auth-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.auth-btn:hover {
+    background-color: var(--button-hover);
+}
+
+/* Links */
+.auth-box p {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.auth-box a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.auth-box a:hover {
+    text-decoration: underline;
+}
